@@ -1,0 +1,13 @@
+[package]
+name = "tui-util"
+version = "0.1.0"
+edition = "2021"
+license = "mit"
+repository = "https://github.com/slugbyte/tui-util"
+description = "a minimal utility for creating interactive terminal software"
+
+[dependencies]
+libc = "0.2.116"
+
+[[example]]
+name = "basic"
