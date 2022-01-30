@@ -41,7 +41,7 @@ impl Drop for Window {
 
 impl  Window {
     pub fn new() -> Result<Window, Box<dyn std::error::Error>> {
-        let mut tty = fs::OpenOptions::new()
+        let tty = fs::OpenOptions::new()
             .write(true)
             .open("/dev/tty")?;
 
@@ -94,7 +94,7 @@ impl  Window {
         Ok(())
     }
 
-    pub fn event_loop(&mut self, event_handler: fn(Event, &mut Window )-> bool ) {
+    pub fn event_loop(&mut self, event_handler: &mut dyn FnMut(Event, &mut Window )-> bool ) {
         loop {
             let event = self.event_source.read_event();
             let result = event_handler(event, self);
