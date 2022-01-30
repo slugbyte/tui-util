@@ -2,6 +2,8 @@ extern crate libc;
 
 use libc::termios as Termios;
 
+use crate::event::{Event, EventSource};
+
 use std::fmt::{self,Debug};
 use std::io::Write;
 use std::fs::{self,File};
@@ -20,6 +22,7 @@ pub struct Window {
     pub height: usize,
     tty: File,
     tty_fd: RawFd,
+    event_source: EventSource,
     termios: Termios,
 }
 
@@ -36,11 +39,10 @@ impl Drop for Window {
     }
 }
 
-impl Window {
+impl  Window {
     pub fn new() -> Result<Window, Box<dyn std::error::Error>> {
-        let tty = fs::OpenOptions::new()
+        let mut tty = fs::OpenOptions::new()
             .write(true)
-            .read(true)
             .open("/dev/tty")?;
 
         let tty_fd = (tty.try_clone().unwrap()).into_raw_fd();
@@ -49,15 +51,20 @@ impl Window {
         let termios = tty_get_termios(tty_fd)?;
         let winsize = tty_get_size(tty_fd)?;
 
+
+        let event_source = EventSource::new("/dev/tty")?;
+
         // get size
         Ok(Window {
             width: winsize.0,
             height: winsize.1,
+            event_source,
             tty,
             tty_fd,
             termios,
         })
     }
+
 
     pub fn write(&mut self, content: &str) -> Result<(), Box<dyn std::error::Error>> {
         self.tty.write(content.as_bytes())?;
@@ -67,11 +74,33 @@ impl Window {
 
     pub fn enable_rawmode(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         tty_enable_rawmode(self.tty_fd)?;
+        // enable_mouse
+        self.write("\x1b[?1000h")?;
+        self.write("\x1b[?1002h")?;
+        self.write("\x1b[?1003h")?;
+        self.write("\x1b[?1005h")?;
+        self.write("\x1b[?1006h")?;
         Ok(())
     }
 
     pub fn restore_termios(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         tty_set_termios(self.tty_fd, &mut self.termios)?;
+        // disable mouse
+        self.write("\x1b[?1000l")?;
+        self.write("\x1b[?1002l")?;
+        self.write("\x1b[?1003l")?;
+        self.write("\x1b[?1005l")?;
+        self.write("\x1b[?1006l")?;
         Ok(())
+    }
+
+    pub fn event_loop(&mut self, event_handler: fn(Event, &mut Window )-> bool ) {
+        loop {
+            let event = self.event_source.read_event();
+            let result = event_handler(event, self);
+            if ! result {
+                break;
+            }
+        }
     }
 }
