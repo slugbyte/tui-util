@@ -23,3 +23,11 @@ tui-util is inspired by tools like [crossterm](https://github.com/crossterm-rs/c
 ## NON-Goals
 * windows support
 * UI elements
+
+
+## TROUBLESHOOTING
+### Key event matching
+
+### ctrl-h is same as ctrl-backspace
+### ctrl-i is same as tab
+### ctrl-m is same as enter

@@ -51,7 +51,6 @@ impl  Window {
         let termios = tty_get_termios(tty_fd)?;
         let winsize = tty_get_size(tty_fd)?;
 
-
         let event_source = EventSource::new("/dev/tty")?;
 
         // get size
