@@ -15,6 +15,9 @@ tui-util is inspired by tools like [crossterm](https://github.com/crossterm-rs/c
 * [x] an interface for setting the tty into raw mode
 * [ ] an interface for writing [ANSI CSI and SGR codes](https://en.wikipedia.org/wiki/ANSI_escape_code) to the tty
 * [ ] an event handling system for reacting to keyboard, mouse, and window resize events
+  *  [x] key events
+  *  [ ] mouse events
+  *  [ ] window resize events
 
 ## Running the examples
 1. clone this repo
@@ -24,10 +27,11 @@ tui-util is inspired by tools like [crossterm](https://github.com/crossterm-rs/c
 * windows support
 * UI elements
 
-
 ## TROUBLESHOOTING
 ### Key event matching
-
-### ctrl-h is same as ctrl-backspace
-### ctrl-i is same as tab
-### ctrl-m is same as enter
+* ctrl-h is ctrl-backspace
+* ctrl-i is tab
+* ctrl-m is as enter
+* ctrl-} is escape
+* no ctrl-esc only alt-esc
+* no ctrl-alt-f\* because the kernal uses that to switch switch tty

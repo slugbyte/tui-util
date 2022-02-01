@@ -6,7 +6,6 @@ use tui_util::event::Event;
 use tui_util::key::{
     Key,
     KeyValue,
-    KeyModifier, 
 };
 
 
@@ -15,19 +14,18 @@ fn main() {
     // print line works like normal befor raw mode is emabled
     println!("BASIC EXAMPLE:");
 
-    // before raw mode events will be triggered when enter is pressed
-    // TODO @slugbyte create line event that has a String?
-    // win.write("type a 4 letter word and hit enter to continue\n> ").unwrap();
-    // win.event_loop(&mut |event, _window| {
-    //     match event {
-    //         Event::ReadCount(5) => false,
-    //         Event::None => true,
-    //         _event => {
-    //             println!("{:?}", _event);
-    //             true
-    //         },
-    //     }
-    // });
+    // before raw mode Key events will be triggered when enter is pressed
+    win.write("type a 4 letter word and hit enter to continue\n> ").unwrap();
+    win.event_loop(&mut |event, _window| {
+        match event {
+            Event::ReadCount(5) => false,
+            Event::None => true,
+            _event => {
+                println!("{:?}", _event);
+                true
+            },
+        }
+    });
 
     // after rawmode is enabled its better to manually move the curor and then
     // write strings.
@@ -50,16 +48,17 @@ fn main() {
     win.event_loop(&mut |event, win| {
         match event {
             Event::Key(key) => {
-                let upper_q = Key::from_char('Q').unwrap();
-
-                let wat:Key = KeyValue::Backspace.into();
-
-                if key == upper_q {
+                // KeyValues can be converterd to keys with .to_key() or .into()
+                if key == KeyValue::Esc.to_key() {
                     win.write("\x1b[2K").unwrap(); // erase row
                     win.write("\x1b[20G").unwrap();
                     win.write("byye byee").unwrap();
                     false
-                } else if key == wat {
+
+                // Keys can be created using from_char or from_byte
+                // keys also have .shift .alt and .ctrl method that take
+                // a boolean to turn the modifier on or off
+                } else if key == Key::from_char('q').unwrap().shift(true) {
                     win.write("\x1b[2K").unwrap(); // erase row
                     win.write("\x1b[20G").unwrap();
                     win.write("byye byee 2").unwrap();

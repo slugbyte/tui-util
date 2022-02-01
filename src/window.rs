@@ -64,7 +64,6 @@ impl  Window {
         })
     }
 
-
     pub fn write(&mut self, content: &str) -> Result<(), Box<dyn std::error::Error>> {
         self.tty.write(content.as_bytes())?;
         self.tty.flush()?;
@@ -74,22 +73,24 @@ impl  Window {
     pub fn enable_rawmode(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         tty_enable_rawmode(self.tty_fd)?;
         // enable_mouse
-        self.write("\x1b[?1000h")?;
-        self.write("\x1b[?1002h")?;
-        self.write("\x1b[?1003h")?;
-        self.write("\x1b[?1005h")?;
-        self.write("\x1b[?1006h")?;
+        self.write("\x1b[?1000h")?; // enable button press
+        self.write("\x1b[?1002h")?; // enable mouse drag
+        self.write("\x1b[?1003h")?; // enable mouse hover
+        self.write("\x1b[?1005h")?; // enable large screen rxvt
+        self.write("\x1b[?1006h")?; // enable large screen SGR
         Ok(())
     }
 
     pub fn restore_termios(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        tty_set_termios(self.tty_fd, &mut self.termios)?;
         // disable mouse
-        self.write("\x1b[?1000l")?;
-        self.write("\x1b[?1002l")?;
-        self.write("\x1b[?1003l")?;
-        self.write("\x1b[?1005l")?;
-        self.write("\x1b[?1006l")?;
+        self.write("\x1b[?1000l")?; // disable button press
+        self.write("\x1b[?1002l")?; // disable mouse drag
+        self.write("\x1b[?1003l")?; // disable mouse hover
+        self.write("\x1b[?1005l")?; // disable large screen rxvt
+        self.write("\x1b[?1006l")?; // disable large screen SGR
+
+        // restore termios
+        tty_set_termios(self.tty_fd, &mut self.termios)?;
         Ok(())
     }
 

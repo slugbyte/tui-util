@@ -20,7 +20,6 @@ pub fn assert_tty(fd: RawFd) ->  Result<(), std::io::Error> {
     }
 }
 
-
 pub fn tty_get_size(tty_fd: RawFd) -> Result<(usize, usize), std::io::Error> {
     use libc::{
         ioctl,
@@ -73,4 +72,3 @@ pub fn tty_enable_rawmode(tty_fd: RawFd) -> Result<(), std::io::Error> {
     tty_set_termios(tty_fd, &mut termios)?;
     return Ok(());
 }
-
