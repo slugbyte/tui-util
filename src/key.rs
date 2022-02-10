@@ -1,6 +1,15 @@
 extern crate bitflags;
-
 use bitflags::bitflags;
+
+// improve this macro so that .mod(bool) can be chained and
+// to_key_alt methods can be refactored out
+macro_rules! if_escape_code {
+    ($x:expr, $y:expr, $z:expr) => {
+        if $x.starts_with($y) {
+            return Some($z);
+        }
+    }
+}
 
 bitflags! {
     pub struct KeyModifier: u32 {
@@ -69,7 +78,6 @@ impl KeyValue {
     }
 }
 
-
 #[derive(Debug,PartialEq)]
 pub struct Key {
     pub value: KeyValue,
@@ -84,16 +92,20 @@ impl From<KeyValue> for Key {
         }
     }
 }
-#[macro_export]
-macro_rules! if_escape_code {
-    ($x:expr, $y:expr, $z:expr) => {
-        if $x.starts_with($y) {
-            return Some($z);
-        }
-    }
-}
 
 impl Key {
+    pub const ESC: Key = Key {
+       value: KeyValue::Esc,
+       modifier: KeyModifier::NONE,
+    };
+
+    pub const TAB: Key = Key {
+       value: KeyValue::Tab,
+       modifier: KeyModifier::NONE,
+    };
+
+    todo!("add constants for every special key");
+
     pub fn from_char(value: char) -> Option<Key> {
         if value.len_utf8() != 1 {
             return None
@@ -106,10 +118,11 @@ impl Key {
 
         // PAGE UP
         if_escape_code!(value, "\x1b[5~", KeyValue::PageUp.to_key());
+
         if_escape_code!(value, "\x1b[5;3~", KeyValue::PageUp.to_key_alt());
         if_escape_code!(value, "\x1b[5;5~", KeyValue::PageUp.to_key_ctrl());
         if_escape_code!(value, "\x1b[5;7~", KeyValue::PageUp.to_key_hyper());
-        
+
         // PAGE DOWN
         if_escape_code!(value, "\x1b[6~", KeyValue::PageDown.to_key());
         if_escape_code!(value, "\x1b[6;3~", KeyValue::PageDown.to_key_alt());
@@ -125,7 +138,7 @@ impl Key {
         if_escape_code!(value, "\x1b[7;3~", KeyValue::Home.to_key_alt());
         if_escape_code!(value, "\x1b[7;5~", KeyValue::Home.to_key_ctrl());
         if_escape_code!(value, "\x1b[7;7~", KeyValue::Home.to_key_hyper());
-         
+
         // HOME xterm
         if_escape_code!(value, "\x1b[H", KeyValue::Home.to_key());
         if_escape_code!(value, "\x1b[1;3H", KeyValue::Home.to_key_alt());
@@ -165,8 +178,8 @@ impl Key {
         if_escape_code!(value, "\x1b[1;3C", KeyValue::Right.to_key_alt());
         if_escape_code!(value, "\x1b[1;5C", KeyValue::Right.to_key_ctrl());
         if_escape_code!(value, "\x1b[1;7C", KeyValue::Right.to_key_hyper());
-        
-        // LEFT 
+
+        // LEFT
         if_escape_code!(value, "\x1b[D", KeyValue::Left.to_key());
         if_escape_code!(value, "\x1b[1;3D", KeyValue::Left.to_key_alt());
         if_escape_code!(value, "\x1b[1;5D", KeyValue::Left.to_key_ctrl());
@@ -177,7 +190,7 @@ impl Key {
         if_escape_code!(value, "\x1b[2;3~", KeyValue::Insert.to_key_alt());
         if_escape_code!(value, "\x1b[2;5~", KeyValue::Insert.to_key_ctrl());
         if_escape_code!(value, "\x1b[2;7~", KeyValue::Insert.to_key_hyper());
-        
+
         // DELETE
         if_escape_code!(value, "\x1b[3~", KeyValue::Delete.to_key());
         if_escape_code!(value, "\x1b[3;3~", KeyValue::Delete.to_key_alt());
@@ -205,12 +218,12 @@ impl Key {
 
         // F2 xterm
         if_escape_code!(value, "\x1b[1Q", KeyValue::F(2).to_key());
-        
+
         // F2 pc
         if_escape_code!(value, "\x1bOQ", KeyValue::F(2).to_key());
         if_escape_code!(value, "\x1b[1;3Q", KeyValue::F(2).to_key_alt());
         if_escape_code!(value, "\x1b[1;5Q", KeyValue::F(2).to_key_ctrl());
-        
+
         // F3 VT
         if_escape_code!(value, "\x1b[13~", KeyValue::F(3).to_key());
         if_escape_code!(value, "\x1b[13;3~", KeyValue::F(3).to_key_alt());
@@ -218,12 +231,12 @@ impl Key {
 
         // F3 xterm
         if_escape_code!(value, "\x1b[1R", KeyValue::F(3).to_key());
-        
+
         // F3 pc
         if_escape_code!(value, "\x1bOR", KeyValue::F(3).to_key());
         if_escape_code!(value, "\x1b[1;3R", KeyValue::F(3).to_key_alt());
         if_escape_code!(value, "\x1b[1;5R", KeyValue::F(3).to_key_ctrl());
-        
+
         // F4 VT
         if_escape_code!(value, "\x1b[14~", KeyValue::F(4).to_key());
         if_escape_code!(value, "\x1b[14;3~", KeyValue::F(4).to_key_alt());
@@ -231,22 +244,22 @@ impl Key {
 
         // F4 xterm
         if_escape_code!(value, "\x1b[1S", KeyValue::F(4).to_key());
-        
+
         // F4 pc
         if_escape_code!(value, "\x1bOS", KeyValue::F(4).to_key());
         if_escape_code!(value, "\x1b[1;3S", KeyValue::F(4).to_key_alt());
         if_escape_code!(value, "\x1b[1;5S", KeyValue::F(4).to_key_ctrl());
-       
+
         // F5 VT
         if_escape_code!(value, "\x1b[15~", KeyValue::F(5).to_key());
         if_escape_code!(value, "\x1b[15;3~", KeyValue::F(5).to_key_alt());
         if_escape_code!(value, "\x1b[15;5~", KeyValue::F(5).to_key_ctrl());
-        
+
         // F6 VT
         if_escape_code!(value, "\x1b[17~", KeyValue::F(6).to_key());
         if_escape_code!(value, "\x1b[17;3~", KeyValue::F(6).to_key_alt());
         if_escape_code!(value, "\x1b[17;5~", KeyValue::F(6).to_key_ctrl());
-        
+
         // F7 VT
         if_escape_code!(value, "\x1b[18~", KeyValue::F(7).to_key());
         if_escape_code!(value, "\x1b[18;3~", KeyValue::F(7).to_key_alt());
@@ -256,22 +269,22 @@ impl Key {
         if_escape_code!(value, "\x1b[19~", KeyValue::F(8).to_key());
         if_escape_code!(value, "\x1b[19;3~", KeyValue::F(8).to_key_alt());
         if_escape_code!(value, "\x1b[19;5~", KeyValue::F(8).to_key_ctrl());
-        
+
         // F9 VT
         if_escape_code!(value, "\x1b[20~", KeyValue::F(9).to_key());
         if_escape_code!(value, "\x1b[20;3~", KeyValue::F(9).to_key_alt());
         if_escape_code!(value, "\x1b[20;5~", KeyValue::F(9).to_key_ctrl());
-        
+
         // F10 VT
         if_escape_code!(value, "\x1b[21~", KeyValue::F(10).to_key());
         if_escape_code!(value, "\x1b[21;3~", KeyValue::F(10).to_key_alt());
         if_escape_code!(value, "\x1b[21;5~", KeyValue::F(10).to_key_ctrl());
-        
+
         // F11 VT
         if_escape_code!(value, "\x1b[23~", KeyValue::F(11).to_key());
         if_escape_code!(value, "\x1b[23;3~", KeyValue::F(11).to_key_alt());
         if_escape_code!(value, "\x1b[23;5~", KeyValue::F(11).to_key_ctrl());
-        
+
         // F12 VT
         if_escape_code!(value, "\x1b[24~", KeyValue::F(12).to_key());
         if_escape_code!(value, "\x1b[24;3~", KeyValue::F(12).to_key_alt());
@@ -369,11 +382,11 @@ impl Key {
     }
 
     fn parse_control_char_key(byte: u8) -> Option<Key> {
-
         if !Self::is_byte_control_char(byte) {
             return None
         }
 
+        // TODO clean this up with match statement and struct constants i.e. ESC
         if byte == 0 {
             return Some(Key {
                 value: KeyValue::Space,

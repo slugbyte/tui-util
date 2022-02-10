@@ -6,7 +6,7 @@ use std::thread::{self,JoinHandle};
 
 use crate::key::{
     Key,
-    KeyValue,
+    KeyValuee
     KeyModifier,
 };
 

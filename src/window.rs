@@ -1,5 +1,6 @@
 extern crate libc;
 
+
 use libc::termios as Termios;
 
 use crate::event::{Event, EventSource};
@@ -70,6 +71,7 @@ impl  Window {
         Ok(())
     }
 
+    /// enable tty into raw mode for per char keyboard events
     pub fn enable_rawmode(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         tty_enable_rawmode(self.tty_fd)?;
         // enable_mouse
